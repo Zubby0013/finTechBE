@@ -209,7 +209,7 @@ export const verifyDeposite = async (
         }).then(async (readData) => {
 
             const check = user?.transactionHistory.findOne((el: any) => {
-                return el.reference === readData?.data?.data?.reference
+                return el.reference === reference;
             })
             if (check) {
                 return res.status(200).json({
@@ -217,23 +217,24 @@ export const verifyDeposite = async (
                     status: 200,
                 });
             } else {
-                await userModel.findByIdAndUpdate(userID,
-                    {
-                        walletBalance: user?.walletBalance + readData?.data?.data?.amount / 100,
-                    },
-                    { new: true }
-                )
-
                 const History = {
                     reference,
                     amount: readData?.data?.data?.amount / 100,
                     kind: "credit",
                 }
+                await userModel.findByIdAndUpdate(userID,
+                    {
+                        walletBalance: user?.walletBalance + readData?.data?.data?.amount / 100,
+                        history: [...user.history, history],
+                    },
+                    { new: true }
+                )
+
 
                 user?.history.push(History);
                 user?.save()
                 return res.status(200).json({
-                    message: "deposit  done",
+                    message: "deposit  data",
                     status: 200,
                     data: readData?.data?.data,
                 });
