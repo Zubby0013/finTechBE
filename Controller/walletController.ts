@@ -97,7 +97,7 @@ export const depositeFunds = async (
         const user = await userModel.findById(userID);
         const params = JSON.stringify({
             "email": user?.email,
-            "amount": `${amount + 100} `,
+            "amount": `${amount * 100} `,
             "currency": "NGN",
             "callback_url": `http://localhost:${process.env.PORT}/`
         })
@@ -121,7 +121,11 @@ export const depositeFunds = async (
             });
 
             resp.on('end', () => {
-                console.log(JSON.parse(data))
+                return res.status(201).json({
+                    message: "User created successfully",
+                    data: JSON.parse(data),
+                    status: 201,
+                });
             })
         }).on('error', error => {
             return (error)
@@ -130,11 +134,7 @@ export const depositeFunds = async (
         request.write(params)
         request.end()
 
-        // return res.status(201).json({
-        //     message: "User created successfully",
-        //     // data: user,
-        //     status: 201,
-        // });
+
     } catch (error: any) {
         return res.status(404).json({
             message: "Error creating user",
@@ -225,7 +225,7 @@ export const verifyDeposite = async (
                 await userModel.findByIdAndUpdate(userID,
                     {
                         walletBalance: user?.walletBalance + readData?.data?.data?.amount / 100,
-                        history: [...user.history, history],
+                        history: [...user?.history, History],
                     },
                     { new: true }
                 )
